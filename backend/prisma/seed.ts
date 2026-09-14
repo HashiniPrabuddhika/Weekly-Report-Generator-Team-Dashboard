@@ -3,7 +3,6 @@ import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
-/** Returns midnight UTC on the Monday of the week containing `date`. */
 function getMonday(date: Date): Date {
   const d = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
   const day = d.getUTCDay();
@@ -20,7 +19,6 @@ function weeksAgo(n: number): { weekStart: Date; weekEnd: Date } {
   return { weekStart: monday, weekEnd: sunday };
 }
 
-// ---------------------------------------------------------------------------
 // Content is deliberately varied per member, per week, and per project
 // domain — not copy-pasted. The whole point of the seed data is to make
 // features like the cross-team section view (blockers/achievements/notes
@@ -48,8 +46,6 @@ type PlannedTask = {
   description: string | null;
 };
 
-// Per-project task pools, so "what people worked on" actually matches
-// their project instead of every project seeing the same generic tasks.
 const PROJECT_TASKS: Record<string, { tasks: Task[]; plannedTasks: PlannedTask[] }> = {
   'Client Portal': {
     tasks: [
@@ -399,11 +395,6 @@ const MEMBER_CONTENT: Record<string, Partial<Record<number, WeekContent>>> = {
     },
   },
 };
-
-// Minimal shapes for the two entities the seed script passes around a lot.
-// Declared explicitly (rather than relying on `typeof teamMembers`-style
-// inference) so this file type-checks correctly even before `prisma
-// generate` has run, and so there's no implicit-any surface anywhere below.
 interface SeedUser {
   id: string;
   name: string;
@@ -426,13 +417,6 @@ interface SeedReportOptions {
   reviewComment?: string;
 }
 
-/**
- * Creates one report with realistic, member-specific nested content, and —
- * for any status beyond DRAFT — the matching ReportVersion (and
- * ReportReview, for NEEDS_CORRECTION/APPROVED) so the data is consistent
- * with what the real API would have produced through the actual
- * submit/review workflow.
- */
 async function seedReport(opts: SeedReportOptions) {
   const { tasks, plannedTasks } = PROJECT_TASKS[opts.projectName];
   const weekContent = MEMBER_CONTENT[opts.memberName]?.[opts.weeksAgoIndex] ?? {
@@ -472,7 +456,7 @@ async function seedReport(opts: SeedReportOptions) {
   });
 
   if (opts.status === 'DRAFT') {
-    return report; // never submitted, so no version/review yet
+    return report;
   }
 
   const version = await prisma.reportVersion.create({
@@ -595,10 +579,8 @@ async function main() {
     });
   }
 
-  // Clear any previously seeded reports so this script is safely re-runnable.
   await prisma.report.deleteMany({ where: { userId: { in: teamMembers.map((m) => m.id) } } });
 
-  // Small helper so each call site reads as "member, on their project, N weeks ago".
   async function seed(
     member: SeedUser,
     project: SeedProject,
@@ -618,15 +600,12 @@ async function main() {
     });
   }
 
-  // Week 3 (oldest): everyone approved — a clean baseline history.
   await seed(hashini, clientPortal, 3, 'APPROVED', { reviewerId: manager.id });
   await seed(kasun, internalTooling, 3, 'APPROVED', { reviewerId: manager.id });
   await seed(amal, aiResearch, 3, 'APPROVED', { reviewerId: manager.id });
   await seed(nimal, marketing, 3, 'APPROVED', { reviewerId: manager.id });
   await seed(tharindu, clientPortal, 3, 'APPROVED', { reviewerId: manager.id });
 
-  // Week 2: mostly approved, one sent back for correction (then never resubmitted —
-  // simulating a report the team member hasn't gotten to yet).
   await seed(hashini, clientPortal, 2, 'APPROVED', { reviewerId: manager.id });
   await seed(kasun, internalTooling, 2, 'NEEDS_CORRECTION', {
     reviewerId: manager.id,
@@ -634,10 +613,6 @@ async function main() {
   });
   await seed(amal, aiResearch, 2, 'APPROVED', { reviewerId: manager.id });
   await seed(nimal, marketing, 2, 'APPROVED', { reviewerId: manager.id });
-  // tharindu has no report for week 2 at all — demonstrates "not started" on the dashboard
-
-  // Week 1: awaiting manager review — this is what a manager opens first when they log in,
-  // and the week the cross-team section view is most interesting on.
   await seed(hashini, clientPortal, 1, 'SUBMITTED');
   await seed(kasun, internalTooling, 1, 'SUBMITTED');
   await seed(amal, aiResearch, 1, 'NEEDS_CORRECTION', {
@@ -648,7 +623,6 @@ async function main() {
   await seed(nimal, marketing, 1, 'SUBMITTED');
   await seed(tharindu, clientPortal, 1, 'APPROVED', { reviewerId: manager.id });
 
-  // Week 0 (current week): full spread of statuses for a populated dashboard demo.
   await seed(hashini, clientPortal, 0, 'SUBMITTED');
   await seed(kasun, internalTooling, 0, 'NEEDS_CORRECTION', {
     reviewerId: manager.id,
@@ -656,7 +630,6 @@ async function main() {
   });
   await seed(amal, aiResearch, 0, 'APPROVED', { reviewerId: manager.id });
   await seed(nimal, marketing, 0, 'DRAFT');
-  // tharindu still has no report for week 0 — demonstrates "not started"
 
   console.log('✅ Seed complete.');
   console.log('   Admin login:        admin@company.com / Password123!');

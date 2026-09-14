@@ -31,15 +31,6 @@ export interface TeamWeekContext {
   }>;
   workloadByProject: Array<{ project: string; taskCount: number }>;
 }
-
-/**
- * Builds a bounded, structured summary of one week's team activity — the
- * only thing the AI module is allowed to see. Deliberately separate from
- * DashboardService's aggregations: those return complete data for on-screen
- * display, this caps list sizes and truncates free-text fields specifically
- * so a week with an unusually large number of reports can't blow up prompt
- * size or cost. No raw report/user rows ever leave this service.
- */
 @Injectable()
 export class AnalyticsService {
   constructor(private readonly prisma: PrismaService) {}

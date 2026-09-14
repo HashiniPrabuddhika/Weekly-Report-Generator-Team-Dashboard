@@ -46,8 +46,6 @@ export class AuthService {
   async login(dto: LoginDto): Promise<AuthResult> {
     const user = await this.usersService.findByEmail(dto.email);
 
-    // Deliberately identical error for "no such user" and "wrong password" —
-    // never reveal which one it was, that leaks whether an email is registered.
     if (!user || !user.isActive) {
       throw new UnauthorizedException('Invalid email or password');
     }

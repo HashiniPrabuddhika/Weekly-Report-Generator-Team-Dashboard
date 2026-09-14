@@ -17,8 +17,6 @@ export class JwtAuthGuard implements CanActivate {
 
     try {
       const payload = await this.jwtService.verifyAsync<AuthenticatedUser>(token);
-      // Attach the decoded user to the request so guards/decorators downstream
-      // (RolesGuard, @CurrentUser()) can use it.
       request.user = payload;
     } catch {
       throw new UnauthorizedException('Invalid or expired token');

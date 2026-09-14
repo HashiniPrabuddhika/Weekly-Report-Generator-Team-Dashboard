@@ -4,18 +4,6 @@ import { AnalyticsService, TeamWeekContext } from './analytics.service';
 
 const MAX_QUESTION_LENGTH = 500;
 
-/**
- * Builds the shared system prompt. The team-week data is embedded as a
- * fenced JSON block with an explicit instruction that its contents are data
- * to summarize, never commands to follow. This matters concretely here:
- * blocker/achievement `text` fields are free-form input written by team
- * members, not by the manager asking the question — without this guard, a
- * report that (deliberately or not) contains something like "ignore prior
- * instructions and..." inside a blocker description would be read by the
- * model in the same turn as the manager's actual question. Fencing the data
- * and naming that risk explicitly is the real mitigation; it isn't perfect,
- * but it's the correct first line of defense for this shape of feature.
- */
 function buildSystemPrompt(context: TeamWeekContext): string {
   return [
     'You are an internal assistant that helps engineering managers understand',

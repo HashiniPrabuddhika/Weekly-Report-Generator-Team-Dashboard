@@ -13,8 +13,6 @@ export class RolesGuard implements CanActivate {
       context.getHandler(),
       context.getClass(),
     ]);
-
-    // No @Roles() decorator on this route — anyone authenticated may access it.
     if (!requiredRoles || requiredRoles.length === 0) {
       return true;
     }

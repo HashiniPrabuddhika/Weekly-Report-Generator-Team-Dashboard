@@ -7,9 +7,6 @@ import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { Role } from '../common/enums/role.enum';
 
-// Manager-only, same as the rest of the manager-facing surface — a team
-// member's own report data is already visible to them directly; this
-// endpoint's value (and its cost) is in the cross-team view.
 @Controller('ai')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(Role.MANAGER, Role.ADMIN)

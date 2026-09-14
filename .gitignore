@@ -1,0 +1,26 @@
+﻿# dependencies
+node_modules/
+
+# backend build output
+backend/dist/
+backend/generated/
+
+# frontend build output
+frontend/.next/
+frontend/out/
+frontend/tsconfig.tsbuildinfo
+
+# environment files (never commit real secrets - .env.example files ARE committed)
+.env
+backend/.env
+frontend/.env
+frontend/.env.local
+
+# logs & misc
+*.log
+.DS_Store
+coverage/
+
+# this script is a local tool, not part of the project history
+create-commit-history.ps1
+create-commit-history.sh

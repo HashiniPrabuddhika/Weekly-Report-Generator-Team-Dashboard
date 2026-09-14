@@ -91,7 +91,7 @@ export function BasicInfoSection() {
                   month: "short",
                   day: "numeric",
                 })}`
-              : "Select a start date — the week end is calculated automatically."}
+              : "Select a start date. the week end is calculated automatically."}
           </p>
         </div>
       </CardContent>

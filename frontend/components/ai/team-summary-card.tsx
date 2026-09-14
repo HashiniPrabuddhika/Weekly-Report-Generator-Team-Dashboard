@@ -35,8 +35,8 @@ export function TeamSummaryCard({ week }: TeamSummaryCardProps) {
               AI team summary
             </CardTitle>
             <CardDescription>
-              A one-click digest of this week&apos;s progress, blockers, and anything that needs
-              attention — generated from the same data as the dashboard, never raw report text.
+              A one click digest of this week&apos;s progress, blockers, and anything that needs
+              attention generated from the same data as the dashboard, never raw report text.
             </CardDescription>
           </div>
           <Button size="sm" onClick={() => mutation.mutate(week)} disabled={mutation.isPending}>

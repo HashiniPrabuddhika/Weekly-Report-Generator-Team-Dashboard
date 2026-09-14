@@ -13,7 +13,7 @@ export default function AiAssistantPage() {
     <div className="space-y-6 p-6 md:p-8">
       <PageHeader
         title="AI Assistant"
-        description="Ask questions or generate a summary — both are grounded in the same structured report data as the dashboard, never raw text sent verbatim."
+        description="Ask questions or generate a summary. both are grounded in the same structured report data as the dashboard, never raw text sent verbatim."
         action={<WeekPicker value={week} onChange={setWeek} />}
       />
 

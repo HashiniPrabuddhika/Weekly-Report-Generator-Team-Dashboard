@@ -13,7 +13,7 @@ export function NotesSection() {
     <Card>
       <CardHeader>
         <CardTitle>Notes</CardTitle>
-        <CardDescription>Optional — anything else worth mentioning, or useful links.</CardDescription>
+        <CardDescription>Anything else worth mentioning, or useful links. (Optional)</CardDescription>
       </CardHeader>
       <CardContent>
         <FormField

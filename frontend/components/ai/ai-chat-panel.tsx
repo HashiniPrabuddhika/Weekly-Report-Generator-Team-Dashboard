@@ -86,7 +86,7 @@ export function AiChatPanel({ week }: AiChatPanelProps) {
           Ask about your team
         </CardTitle>
         <CardDescription>
-          Answers are grounded only in this week&apos;s report data — nothing outside it is used.
+          Answers are grounded only in this week&apos;s report data nothing outside it is used.
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-1 flex-col gap-3">

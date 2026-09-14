@@ -17,10 +17,10 @@ export default function SectionViewPage() {
   return (
     <div className="space-y-6 p-6 md:p-8">
       <PageHeader
-        title="Cross-team section view"
+        title="Cross team section view"
         description={
           data
-            ? `${SECTION_LABELS[data.section]} — week of ${new Date(data.week).toLocaleDateString(
+            ? `${SECTION_LABELS[data.section]}  week of ${new Date(data.week).toLocaleDateString(
                 undefined,
                 { month: "short", day: "numeric", year: "numeric" },
               )}`

@@ -31,7 +31,7 @@ export function TimeBreakdownSection() {
     <Card>
       <CardHeader>
         <CardTitle>Hours by task type</CardTitle>
-        <CardDescription>Optional — how your time broke down this week.</CardDescription>
+        <CardDescription>how your time broke down this week. (Optional)</CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
         {fields.length === 0 && (

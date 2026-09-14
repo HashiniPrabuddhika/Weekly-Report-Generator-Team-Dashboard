@@ -26,7 +26,7 @@ export const memberNavLinks: NavLink[] = [
 
 export const managerNavLinks: NavLink[] = [
   { href: "/manager/dashboard", label: "Team Dashboard", icon: LayoutDashboard },
-  { href: "/manager/dashboard/section-view", label: "Cross-Team View", icon: Columns3 },
+  { href: "/manager/dashboard/section-view", label: "Cross Team View", icon: Columns3 },
   { href: "/manager/assistant", label: "AI Assistant", icon: Bot },
   { href: "/manager/reports", label: "Team Reports", icon: ClipboardCheck },
   { href: "/manager/team", label: "Team Members", icon: Users },

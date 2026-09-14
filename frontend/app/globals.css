@@ -1,0 +1,169 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --radius: 0.5rem;
+
+  /* Base surfaces */
+  --background: #f7f7f4;
+  --foreground: #14181f;
+  --card: #ffffff;
+  --card-foreground: #14181f;
+  --popover: #ffffff;
+  --popover-foreground: #14181f;
+
+  /* Brand */
+  --primary: #26415e;
+  --primary-foreground: #ffffff;
+  --accent: #b8862f;
+  --accent-foreground: #ffffff;
+
+  /* Neutral UI */
+  --secondary: #eeede8;
+  --secondary-foreground: #14181f;
+  --muted: #eeede8;
+  --muted-foreground: #6b7076;
+  --border: #e3e1da;
+  --input: #e3e1da;
+  --ring: #26415e;
+
+  /* Semantic */
+  --destructive: #b3261e;
+  --destructive-foreground: #ffffff;
+
+  /* Workflow status — deliberately distinct from brand colors above */
+  --status-draft: #6b7076;
+  --status-draft-bg: #eeede8;
+  --status-submitted: #1d5a8c;
+  --status-submitted-bg: #e6eef5;
+  --status-needs-correction: #b45309;
+  --status-needs-correction-bg: #fbf0e2;
+  --status-approved: #1e7145;
+  --status-approved-bg: #e7f3ec;
+
+  /* Chart palette */
+  --chart-1: #26415e;
+  --chart-2: #b8862f;
+  --chart-3: #1e7145;
+  --chart-4: #7c5cbf;
+  --chart-5: #b45309;
+
+  /* Sidebar — deliberately theme-invariant: a persistent ink-navy rail
+     (like the spine of a ledger) regardless of light/dark mode, so it
+     reads as the app's fixed identity rather than a themed surface. */
+  --sidebar: #0b1220;
+  --sidebar-foreground: #dbe2ec;
+  --sidebar-muted-foreground: #8792a6;
+  --sidebar-active-bg: #16233a;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-accent: #d1a256;
+}
+
+.dark {
+  --background: #14161b;
+  --foreground: #f2f1ed;
+  --card: #1b1f27;
+  --card-foreground: #f2f1ed;
+  --popover: #1b1f27;
+  --popover-foreground: #f2f1ed;
+
+  --primary: #6f93b8;
+  --primary-foreground: #14161b;
+  --accent: #d1a256;
+  --accent-foreground: #14161b;
+
+  --secondary: #262b34;
+  --secondary-foreground: #f2f1ed;
+  --muted: #262b34;
+  --muted-foreground: #9a9fa6;
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.15);
+  --ring: #6f93b8;
+
+  --destructive: #d9564c;
+  --destructive-foreground: #14161b;
+
+  --status-draft: #9a9fa6;
+  --status-draft-bg: #262b34;
+  --status-submitted: #6fa8d8;
+  --status-submitted-bg: #1c2d3b;
+  --status-needs-correction: #e0a458;
+  --status-needs-correction-bg: #332a1a;
+  --status-approved: #5fbf8c;
+  --status-approved-bg: #1a2e24;
+
+  --chart-1: #6f93b8;
+  --chart-2: #d1a256;
+  --chart-3: #5fbf8c;
+  --chart-4: #a58fdb;
+  --chart-5: #e0a458;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", Consolas, monospace;
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-status-draft: var(--status-draft);
+  --color-status-draft-bg: var(--status-draft-bg);
+  --color-status-submitted: var(--status-submitted);
+  --color-status-submitted-bg: var(--status-submitted-bg);
+  --color-status-needs-correction: var(--status-needs-correction);
+  --color-status-needs-correction-bg: var(--status-needs-correction-bg);
+  --color-status-approved: var(--status-approved);
+  --color-status-approved-bg: var(--status-approved-bg);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-muted-foreground: var(--sidebar-muted-foreground);
+  --color-sidebar-active-bg: var(--sidebar-active-bg);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent: var(--sidebar-accent);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "cv11", "ss01";
+  }
+  /* Tabular numerals for any data table cell — functional, not decorative:
+     keeps hours/percentages/dates aligned in columns. */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}

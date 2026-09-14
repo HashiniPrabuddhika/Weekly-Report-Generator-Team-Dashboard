@@ -1,0 +1,264 @@
+// ============================================================================
+// Weekly Report Generator & Team Dashboard — Prisma Schema
+// ============================================================================
+// Design notes (explain these in your presentation):
+//
+// 1. A Report holds the CURRENT/working state (draft fields you edit directly).
+//    When a report is submitted, we snapshot its full content as JSON into a
+//    new ReportVersion row. This means:
+//      - Editing a draft is simple, normalized, easy to validate.
+//      - Submitted history is immutable — never overwritten, satisfies the
+//        "version history" requirement without needing 5-table joins per version.
+//
+// 2. ReportReview always points at the ReportVersion it was made against,
+//    so a manager's comment is permanently tied to the exact content they reviewed.
+//
+// 3. One report per user per week (unique constraint on userId + weekStart).
+//    A report is tagged with a single project/category, matching the assignment's
+//    "Project or category tag" field.
+// ============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum Role {
+  TEAM_MEMBER
+  MANAGER
+  ADMIN
+}
+
+enum ReportStatus {
+  DRAFT
+  SUBMITTED
+  NEEDS_CORRECTION
+  APPROVED
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum TaskStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  BLOCKED
+}
+
+enum TimeTaskType {
+  DEVELOPMENT
+  TESTING
+  MEETINGS
+  DOCUMENTATION
+  OTHER
+}
+
+enum ReviewAction {
+  APPROVED
+  CHANGES_REQUESTED
+}
+
+// ---------------------------------------------------------------------------
+// Users & Roles
+// ---------------------------------------------------------------------------
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(TEAM_MEMBER)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // A team member's own reports
+  reports Report[] @relation("ReportAuthor")
+
+  // Reviews this user has made as a manager
+  reviewsGiven ReportReview[] @relation("Reviewer")
+
+  // Optional project assignment (many-to-many)
+  projectAssignments UserProject[]
+
+  @@map("users")
+}
+
+// ---------------------------------------------------------------------------
+// Projects / Categories
+// ---------------------------------------------------------------------------
+
+model Project {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  reports           Report[]
+  assignedMembers   UserProject[]
+
+  @@map("projects")
+}
+
+model UserProject {
+  id        String  @id @default(uuid())
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String
+
+  @@unique([userId, projectId])
+  @@map("user_projects")
+}
+
+// ---------------------------------------------------------------------------
+// Reports (current/working state)
+// ---------------------------------------------------------------------------
+
+model Report {
+  id        String       @id @default(uuid())
+  user      User         @relation("ReportAuthor", fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  project   Project      @relation(fields: [projectId], references: [id])
+  projectId String
+
+  weekStart DateTime
+  weekEnd   DateTime
+  status    ReportStatus @default(DRAFT)
+
+  notes String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Current working content (editable while DRAFT or NEEDS_CORRECTION)
+  tasks         ReportTask[]
+  plannedTasks  PlannedTask[]
+  blockers      ReportBlocker[]
+  achievements  ReportAchievement[]
+  timeEntries   ReportTimeEntry[]
+
+  // Immutable history
+  versions ReportVersion[]
+  reviews  ReportReview[]
+
+  // One report per user per week
+  @@unique([userId, weekStart])
+  @@index([status])
+  @@index([projectId])
+  @@map("reports")
+}
+
+model ReportTask {
+  id                 String       @id @default(uuid())
+  report             Report       @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  reportId           String
+  taskName           String
+  priority           TaskPriority @default(MEDIUM)
+  plannedPercentage  Int          @default(0)
+  actualPercentage   Int          @default(0)
+  status             TaskStatus   @default(NOT_STARTED)
+  plannedHours       Float        @default(0)
+  actualHours        Float        @default(0)
+  deliverable        String?
+
+  @@map("report_tasks")
+}
+
+model PlannedTask {
+  id          String       @id @default(uuid())
+  report      Report       @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  reportId    String
+  taskName    String
+  priority    TaskPriority @default(MEDIUM)
+  description String?
+
+  @@map("planned_tasks")
+}
+
+model ReportBlocker {
+  id          String  @id @default(uuid())
+  report      Report  @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  reportId    String
+  description String
+  isKeyIssue  Boolean @default(false)
+
+  @@map("report_blockers")
+}
+
+model ReportAchievement {
+  id               String  @id @default(uuid())
+  report           Report  @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  reportId         String
+  description      String
+  isKeyAchievement Boolean @default(false)
+
+  @@map("report_achievements")
+}
+
+model ReportTimeEntry {
+  id       String       @id @default(uuid())
+  report   Report       @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  reportId String
+  taskType TimeTaskType
+  hours    Float
+
+  @@map("report_time_entries")
+}
+
+// ---------------------------------------------------------------------------
+// Report Versions (immutable snapshots, created on every submit/resubmit)
+// ---------------------------------------------------------------------------
+
+model ReportVersion {
+  id            String   @id @default(uuid())
+  report        Report   @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  reportId      String
+  versionNumber Int
+  submittedAt   DateTime @default(now())
+
+  // Full snapshot of tasks/blockers/achievements/time/notes at submission time.
+  // Kept as JSON deliberately — the assignment only requires viewing past
+  // versions on demand, not a field-by-field diff view.
+  contentSnapshot Json
+
+  reviews ReportReview[]
+
+  @@unique([reportId, versionNumber])
+  @@map("report_versions")
+}
+
+// ---------------------------------------------------------------------------
+// Reviews (manager actions against a specific version)
+// ---------------------------------------------------------------------------
+
+model ReportReview {
+  id         String        @id @default(uuid())
+  report     Report        @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  reportId   String
+  version    ReportVersion @relation(fields: [versionId], references: [id], onDelete: Cascade)
+  versionId  String
+  reviewer   User          @relation("Reviewer", fields: [reviewerId], references: [id])
+  reviewerId String
+  action     ReviewAction
+  comment    String?
+  createdAt  DateTime      @default(now())
+
+  @@index([reportId])
+  @@map("report_reviews")
+}

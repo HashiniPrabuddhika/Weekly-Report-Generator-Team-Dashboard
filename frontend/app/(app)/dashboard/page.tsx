@@ -53,7 +53,7 @@ export default function MemberDashboardPage() {
         <Link href={`/reports/${needsAttention.id}/edit`}>
           <CorrectionCommentBanner
             comment={
-              needsAttention.reviews.find((r) => r.action === "CHANGES_REQUESTED")?.comment ??
+              needsAttention.reviews?.find((r) => r.action === "CHANGES_REQUESTED")?.comment ??
               "A manager requested changes on one of your reports."
             }
           />
